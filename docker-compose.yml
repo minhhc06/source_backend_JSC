@@ -1,0 +1,36 @@
+version: '3.3'
+
+services:
+    db:
+        image: bitnami/postgresql:11
+        ports:  
+            - 5438:5432  
+        volumes:  
+            - postgresql_data:/bitnami/postgresql  
+            - ./scripts/create-database.sql:/docker-entrypoint-initdb.d/create-database.sql 
+        env_file:  
+            - docker.env  
+        restart: always  
+        networks:  
+            - lamont-network
+    dev:
+        container_name: nestjs_api_dev
+        image: nestjs-api-dev:1.0.0
+        build:
+            context: .
+            dockerfile: ./Dockerfile
+        ports:
+            - 3000:3000
+        networks:
+            - lamont-network
+        depends_on: 
+            - db
+        restart: always
+    
+volumes:
+    postgresql_data:
+        driver: local
+
+
+networks:
+    lamont-network:
